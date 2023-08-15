@@ -1,0 +1,20 @@
+{
+  "title": "MORTGAGE CALCULATOR",
+  "monthly_payment": "Monthly payment",
+  "total_payment": "Total payment",
+  "total_interest": "Total interest",
+  "months": "months",
+  "question": {
+    "loan_amount": "Loan amount",
+    "apr": "Annual Percentage Rate (APR)\n(eg. 5 for 5%, 4.5 for 4.5%, 0 is allowed)",
+    "loan_duration_years": "Loan duration - Years\n(greater than 0)",
+    "loan_duration_months": "Loan duration - Months\n(greater than or equal to zero)",
+    "another_calculation": "Would you like to perform another calculation? (y/n)"
+  },
+  "error": {
+    "invalid_number": "Hmm... that doesn't look like a valid number",
+    "greater_than_zero": "Enter a number greater than 0",
+    "negative_number": "Enter a 0 or positive whole number",
+    "not_y_or_n": "Please enter either 'y' or 'n'"
+  }
+}

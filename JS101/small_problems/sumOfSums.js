@@ -3,7 +3,7 @@ function sumOfSums(arr) {
     // collect every sum for each element in the array
     // then add all of those up
 
-    return arr.slice().map((num, idx) => {
+    return arr.slice().map((_, idx) => {
         return arr.slice(0, idx + 1)
     })
 }

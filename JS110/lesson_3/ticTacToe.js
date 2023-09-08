@@ -29,8 +29,12 @@ function displayBoardHeader(score, maxScore) {
 
   console.log(`You are ${HUMAN_MARKER}. Computer is ${COMPUTER_MARKER}`);
 
-  console.log(maxScore);
   if (maxScore > 1) displayScore(score);
+}
+
+function displayScore(score) {
+  prompt('SCORE:');
+  prompt(`Player: ${score.x} Computer: ${score.o}`);
 }
 
 function joinOr(arr, delimiter = ', ', orDelimiter = 'or') {
@@ -143,21 +147,19 @@ function isPlayingAgain() {
   return readline.question().toLowerCase()[0] === YES;
 }
 
-function runGameTurnLoop(board, score) {
-  const boardCopy = JSON.parse(JSON.stringify(board));
-
+function runGameLoop(board, score, maxScore) {
   while (true) {
-    displayBoardHeader(score);
-    displayBoard(boardCopy);
+    displayBoardHeader(score, maxScore);
+    displayBoard(board);
 
-    playerChoosesSquare(boardCopy);
-    if (someoneWon(boardCopy) || boardFull(boardCopy)) break;
+    playerChoosesSquare(board);
+    if (someoneWon(board) || boardFull(board)) break;
 
-    computerChoosesSquare(boardCopy);
-    if (someoneWon(boardCopy) || boardFull(boardCopy)) break;
+    computerChoosesSquare(board);
+    if (someoneWon(board) || boardFull(board)) break;
   }
 
-  return boardCopy;
+  return board;
 }
 
 function playSeriesBestOfFive() {
@@ -166,10 +168,6 @@ function playSeriesBestOfFive() {
   return readline.question().toLowerCase()[0] === YES;
 }
 
-function displayScore(score) {
-  prompt('SCORE:');
-  prompt(`Player: ${score.x} Computer: ${score.o}`);
-}
 
 function updateScore(score, winner) {
   if (winner === PLAYER) {
@@ -177,12 +175,22 @@ function updateScore(score, winner) {
   } else if (winner === COMPUTER) {
     score.o += 1;
   }
+
+  score.gamesPlayed += 1;
+}
+
+function minScoreToWin(maxScore) {
+  if (maxScore % 2 === 0) {
+    return (maxScore / 2) + 1;
+  }
+
+  return Math.ceil(maxScore / 2);
 }
 
 function detectSeriesWinner(score, maxScore) {
-  if (score.x === maxScore) {
+  if (score.x === minScoreToWin(maxScore)) {
     return PLAYER;
-  } else if (score.o === maxScore) {
+  } else if (score.o === minScoreToWin(maxScore)) {
     return COMPUTER;
   }
 
@@ -190,41 +198,40 @@ function detectSeriesWinner(score, maxScore) {
 }
 
 function displaySeriesWinner(seriesWinner, maxScore) {
-  if (maxScore === 1) return;
+  if (maxScore === SINGLE_GAME) return;
 
   prompt(`${seriesWinner} wins the series!`);
 }
 
-// keep track best of 5
-// for who wins, for each game Turn loop
-// increment the score by 1 depending on who won
-// after the turn loop
-// get who won that turn
-// display who won that round
+function initializeScore() {
+  return { x: 0, o: 0, gamesPlayed: 0 };
+}
 
-// Game Control Loop
+// Game control loop
 while (true) {
   let board = initializeBoard();
+  let score = initializeScore();
   let gameWinner = null;
   let seriesWinner = null;
-  const score = { x: 0, o: 0 };
-  const maxScore = playSeriesBestOfFive() ? SERIES_MAX : SINGLE_GAME;
-  console.log(maxScore);
+  let maxScore = playSeriesBestOfFive() ? SERIES_MAX : SINGLE_GAME;
 
-  displayBoardHeader(score, maxScore);
-  displayBoard(board, score);
-
-  board = runGameTurnLoop(board, score);
-
-  gameWinner = detectWinner(board);
-  updateScore(score, gameWinner);
   displayBoardHeader(score, maxScore);
   displayBoard(board);
-  displayWinOrTie(gameWinner);
 
-  seriesWinner = detectSeriesWinner(score, maxScore);
+  // Series loop
+  while (true) {
+    seriesWinner = detectSeriesWinner(score, maxScore);
 
-  if (!seriesWinner) continue;
+    if (seriesWinner) break;
+
+    runGameLoop(board, score, maxScore);
+
+    gameWinner = detectWinner(board);
+    updateScore(score, gameWinner);
+    displayWinOrTie(gameWinner);
+
+    board = initializeBoard();
+  }
 
   displaySeriesWinner(seriesWinner, maxScore);
 

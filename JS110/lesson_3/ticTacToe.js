@@ -1,8 +1,10 @@
 const readline = require('readline-sync');
 const EMPTY_SQUARE_MARKER = ' ';
-const HUMAN_MARKER = 'X';
-const COMPUTER_MARKER = 'O';
+const X_MARKER = 'X';
+const O_MARKER = 'O';
 const PLAYER = 'Player';
+const PLAYER_ONE = `${PLAYER} 1`;
+const PLAYER_TWO = `${PLAYER} 2`;
 const COMPUTER = 'Computer';
 const SERIES_MAX = 5;
 const SINGLE_GAME = 1;
@@ -24,17 +26,23 @@ function displayBoard(board) {
   console.log('');
 }
 
-function displayBoardHeader(score, maxScore) {
+function displayBoardHeader(score, maxScore, isTwoPlayer = false) {
   console.clear();
 
-  console.log(`You are ${HUMAN_MARKER}. Computer is ${COMPUTER_MARKER}`);
+  if (isTwoPlayer) {
+    console.log(`${PLAYER_ONE} is ${X_MARKER}. ${PLAYER_TWO} is ${O_MARKER}`);
+  } else {
+    console.log(`You are ${X_MARKER}. ${COMPUTER} is ${O_MARKER}`);
+  }
 
-  if (maxScore > 1) displayScore(score);
+  if (maxScore > 1) displayScore(score, isTwoPlayer);
 }
 
-function displayScore(score) {
+function displayScore(score, isTwoPlayer = false) {
+  const playerOne = isTwoPlayer ? PLAYER_ONE : PLAYER;
+  const playerTwo = isTwoPlayer ? PLAYER_TWO : COMPUTER;
   prompt('SCORE:');
-  prompt(`Player: ${score.x} Computer: ${score.o}`);
+  prompt(`${playerOne}: ${score.x} ${playerTwo}: ${score.o}`);
 }
 
 function joinOr(arr, delimiter = ', ', orDelimiter = 'or') {
@@ -74,7 +82,7 @@ function emptySquares(board) {
   );
 }
 
-function playerChoosesSquare(board) {
+function playerChoosesSquare(board, marker) {
   let square;
 
   while (true) {
@@ -86,14 +94,14 @@ function playerChoosesSquare(board) {
     prompt("Sorry, that's not a valid choice");
   }
 
-  board[square] = HUMAN_MARKER;
+  board[square] = marker;
 }
 
 function computerChoosesSquare(board) {
   let randomIndex = Math.floor(Math.random() * emptySquares(board).length);
 
   let square = emptySquares(board)[randomIndex];
-  board[square] = COMPUTER_MARKER;
+  board[square] = O_MARKER;
 }
 
 function boardFull(board) {
@@ -101,7 +109,7 @@ function boardFull(board) {
 }
 
 // eslint-disable-next-line max-lines-per-function
-function detectWinner(board) {
+function detectWinner(board, playerX = PLAYER, playerO = COMPUTER) {
   let winningLines = [
     [1, 2, 3], [4, 5, 6], [7, 8, 9], // rows
     [1, 4, 7], [2, 5, 8], [3, 6, 9], // columns
@@ -112,17 +120,17 @@ function detectWinner(board) {
     let [ sq1, sq2, sq3 ] = winningLines[line];
 
     if (
-      board[sq1] === HUMAN_MARKER &&
-      board[sq2] === HUMAN_MARKER &&
-      board[sq3] === HUMAN_MARKER
+      board[sq1] === X_MARKER &&
+      board[sq2] === X_MARKER &&
+      board[sq3] === X_MARKER
     ) {
-      return PLAYER;
+      return playerX;
     } else if (
-      board[sq1] === COMPUTER_MARKER &&
-      board[sq2] === COMPUTER_MARKER &&
-      board[sq3] === COMPUTER_MARKER
+      board[sq1] === O_MARKER &&
+      board[sq2] === O_MARKER &&
+      board[sq3] === O_MARKER
     ) {
-      return COMPUTER;
+      return playerO;
     }
   }
 
@@ -147,12 +155,14 @@ function isPlayingAgain() {
   return readline.question().toLowerCase()[0] === YES;
 }
 
-function runGameLoop(board, score, maxScore) {
+function runGameLoop(
+  board, score, maxScore, playerOneMarker = X_MARKER, isTwoPlayer = false
+) {
   while (true) {
     displayBoardHeader(score, maxScore);
     displayBoard(board);
 
-    playerChoosesSquare(board);
+    playerChoosesSquare(board, playerOneMarker);
     if (someoneWon(board) || boardFull(board)) break;
 
     computerChoosesSquare(board);
@@ -169,14 +179,14 @@ function playSeriesBestOfFive() {
 }
 
 
-function updateScore(score, winner) {
-  if (winner === PLAYER) {
+function updateScore(
+  score, winner, playerX = PLAYER, playerO = COMPUTER
+) {
+  if (winner === playerX) {
     score.x += 1;
-  } else if (winner === COMPUTER) {
+  } else if (winner === playerO) {
     score.o += 1;
   }
-
-  score.gamesPlayed += 1;
 }
 
 function minScoreToWin(maxScore) {
@@ -187,11 +197,13 @@ function minScoreToWin(maxScore) {
   return Math.ceil(maxScore / 2);
 }
 
-function detectSeriesWinner(score, maxScore) {
+function detectSeriesWinner(
+  score, maxScore, playerX = PLAYER, playerO = COMPUTER
+) {
   if (score.x === minScoreToWin(maxScore)) {
-    return PLAYER;
+    return playerX;
   } else if (score.o === minScoreToWin(maxScore)) {
-    return COMPUTER;
+    return playerO;
   }
 
   return null;
@@ -204,8 +216,21 @@ function displaySeriesWinner(seriesWinner, maxScore) {
 }
 
 function initializeScore() {
-  return { x: 0, o: 0, gamesPlayed: 0 };
+  return { x: 0, o: 0 };
 }
+
+// welcome to ticTacToe
+// 1 player or 2 player?
+// series or not?
+// x or o
+
+// if it's 2 player
+// the refactors will involve re-using
+// the makePlayerChoice function to accept
+// an addition argument for the correct marker to use
+
+// in addition, during the game loop, this will need
+// a parameter to determine whether to use computerMakesChoice as well
 
 // Game control loop
 while (true) {

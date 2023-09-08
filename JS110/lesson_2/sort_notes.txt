@@ -1,0 +1,29 @@
+Sorting
+=======
+
+In JS, the sort method recieves a callback function that provides with each element of the array.  One
+important thing to remember about sorting in JS is that calling sort on an array object without a callback
+function will convert the values to string and sort based on each characters "Unicode point value".
+
+it leaves out all undefined values which will be put at the end of an array.
+
+-----------------
+
+IF a *callback* function is used, the sorting will be based on the callback functions return value
+
+The *callback* functions expects a -1, 1, or 0 to be returned in order for the sort to work properly.
+This behaves as follows:
+
+- return value > 0 -- A will come after B
+- return value < 0 -- A will come before B
+- reutnr value === 0 -- keep original order
+
+We are giving instructions on how to treat a and b as the sort algorithm works to put the values in the
+proper place.
+
+If we want to sort Ascending, then a being < b becomes important,  in this case we want to return -1.
+Because we want A to be sorted BEFORE B.
+
+If A is > B then we return 1 so it is sorted after.
+
+and the reverse for descending.

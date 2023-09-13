@@ -82,7 +82,7 @@ function emptySquares(board) {
   );
 }
 
-function playerChoosesSquare(board, marker) {
+function playerChoosesSquare(board, marker = X_MARKER) {
   let square;
 
   while (true) {
@@ -137,13 +137,9 @@ function detectWinner(board, playerX = PLAYER, playerO = COMPUTER) {
   return null;
 }
 
-function someoneWon(board) {
-  return !!detectWinner(board);
-}
-
 function displayWinOrTie(winner) {
   if (winner) {
-    prompt(`${winner} won!`);
+    prompt(`${winner} wins!`);
   } else {
     prompt("It's a tie!");
   }
@@ -155,29 +151,46 @@ function isPlayingAgain() {
   return readline.question().toLowerCase()[0] === YES;
 }
 
+function displayBoardAndHeader(board, score, maxScore, isTwoPlayer) {
+  displayBoardHeader(score, maxScore, isTwoPlayer);
+  displayBoard(board);
+}
+
 function runGameLoop(
-  board, score, maxScore, playerOneMarker = X_MARKER, isTwoPlayer = false
+  board, score, maxScore, isTwoPlayer = false, playerOne, playerTwo,
 ) {
   while (true) {
-    displayBoardHeader(score, maxScore);
-    displayBoard(board);
+    displayBoardAndHeader(board, score, maxScore, isTwoPlayer);
 
-    playerChoosesSquare(board, playerOneMarker);
-    if (someoneWon(board) || boardFull(board)) break;
+    playerChoosesSquare(board);
+    displayBoardAndHeader(board, score, maxScore, isTwoPlayer);
+    if (!!detectWinner(board, playerOne, playerTwo) || boardFull(board)) break;
 
-    computerChoosesSquare(board);
-    if (someoneWon(board) || boardFull(board)) break;
+    if (isTwoPlayer) {
+      playerChoosesSquare(board, O_MARKER);
+      displayBoardAndHeader(board, score, maxScore, isTwoPlayer);
+    } else {
+      computerChoosesSquare(board);
+    }
+    if (!!detectWinner(board, playerOne, playerTwo) || boardFull(board)) break;
   }
 
   return board;
 }
 
-function playSeriesBestOfFive() {
+function askIfPlaySeriesBestOfFive() {
+  console.clear();
+
   prompt('Do you want to play a series best of 5?');
 
   return readline.question().toLowerCase()[0] === YES;
 }
 
+function askIfTwoPlayer() {
+  prompt('Will this be a 1 or 2 player game?');
+
+  return readline.question().toLocaleLowerCase()[0] === '2';
+}
 
 function updateScore(
   score, winner, playerX = PLAYER, playerO = COMPUTER
@@ -219,40 +232,36 @@ function initializeScore() {
   return { x: 0, o: 0 };
 }
 
-// welcome to ticTacToe
-// 1 player or 2 player?
-// series or not?
-// x or o
-
-// if it's 2 player
-// the refactors will involve re-using
-// the makePlayerChoice function to accept
-// an addition argument for the correct marker to use
-
-// in addition, during the game loop, this will need
-// a parameter to determine whether to use computerMakesChoice as well
-
 // Game control loop
 while (true) {
+  const maxScore = askIfPlaySeriesBestOfFive() ? SERIES_MAX : SINGLE_GAME;
+  const isTwoPlayer = askIfTwoPlayer();
+  const playerTwo = isTwoPlayer ? PLAYER_TWO : COMPUTER;
+  const playerOne = isTwoPlayer ? PLAYER_ONE : PLAYER;
   let board = initializeBoard();
   let score = initializeScore();
   let gameWinner = null;
   let seriesWinner = null;
-  let maxScore = playSeriesBestOfFive() ? SERIES_MAX : SINGLE_GAME;
 
-  displayBoardHeader(score, maxScore);
-  displayBoard(board);
+  displayBoardAndHeader(board, score, maxScore, isTwoPlayer);
 
   // Series loop
   while (true) {
-    seriesWinner = detectSeriesWinner(score, maxScore);
+    seriesWinner = detectSeriesWinner(score, maxScore, playerOne, playerTwo);
 
     if (seriesWinner) break;
 
-    runGameLoop(board, score, maxScore);
+    runGameLoop(
+      board,
+      score,
+      maxScore,
+      isTwoPlayer,
+      playerOne,
+      playerTwo,
+    );
 
-    gameWinner = detectWinner(board);
-    updateScore(score, gameWinner);
+    gameWinner = detectWinner(board, playerOne, playerTwo);
+    updateScore(score, gameWinner, playerOne, playerTwo);
     displayWinOrTie(gameWinner);
 
     board = initializeBoard();

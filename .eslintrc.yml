@@ -5,6 +5,7 @@ parserOptions:
   ecmaFeatures:
     impliedStrict: true
 env:
+  es2020: true
   browser: true
   es6: true
   jest: true

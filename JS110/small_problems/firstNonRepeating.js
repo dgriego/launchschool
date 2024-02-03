@@ -20,14 +20,14 @@ check the length, if length is one, return that character?
 const first_non_repeating_letter = (str) => {
     let letter = null
 
-    for (let i = 0; i < str.length; i++) {
-        const regex = new RegExp(str[i], 'gi')
+    str.split('').forEach((char) => {
+        const regex = new RegExp(char, 'gi')
 
         if (str.match(regex).length === 1) {
-            letter = str[i]
-            break
+            letter = char
+            return
         }
-    }
+    })
 
     return letter
 }

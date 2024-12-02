@@ -1,44 +1,61 @@
 /*
- * returns -
- * 1. distinct case-insensitive chars that appear more than once
- * 2. unique digits that appear more than once
  *
- * if it's included more than once, than include
+ * - min int value that can be added to an array, where the SUM of that
+ *   array equals the closest prime number that is greater than the current sum
  *
- * 1. check for more than one
- * .. do a count, then count OR track the values
- *  if it exists already, increment the total count
+ *   sum of the array, we find the closest prime from that sum,
+ *   we can subtract from the sum to the prime to determine the value
+ *
+ *   prime is divisible only by 1 and itself
+ *   not divisible by 2 or 3
+ *
+ *   1. sum of array
+ *   2. from that sum, loop until we find the nearest prime
+ *   3. once prime is located, subtract from sum to find min int
  *
  *
- * tracker = []
- * loop
- *    char
- *    if char is in tracker
- *      counter++
+ *   start
+ *     reduce array
  *
+ *     loop starting at sum
+ *        if val % 2 !== 0 and val % 3 !== 0
+ *           break
+ *
+ *     min num = found prime - sum
  */
+
 const p = console.log;
 
-function distinctMultiples(str) {
-  str = str.toLowerCase();
-  const tracker = {};
-
-  for (let i = 0; i < str.length; i++) {
-    const char = str[i];
-    tracker[char] = (tracker[char] || 0) + 1;
+function isPrime(num) {
+  for (let i = 2; i < num; i++) {
+    if (num % i === 0) return false;
   }
 
-  return Object.values(tracker).reduce((a, b) => {
-    b = b > 1 ? 1 : 0;
-    return a + b;
-  }, 0);
+  return true;
 }
 
-p(distinctMultiples("xyz") === 0); // (none)
-p(distinctMultiples("xxyypzzr") === 3); // x, y, z
-p(distinctMultiples("xXyYpzZr") === 3); // x, y, z
-p(distinctMultiples("unununium") === 2); // u, n
-p(distinctMultiples("multiplicity") === 3); // l, t, i
-p(distinctMultiples("7657") === 1); // 7
-p(distinctMultiples("3141592653589793") === 4); // 3, 1, 5, 9
-p(distinctMultiples("2718281828459045") === 5); // 2, 1, 8, 4, 5
+function nearestPrimeSum(nums) {
+  const sum = nums.reduce((a, b) => a + b, 0);
+  let inc = 1;
+  let prime = 1;
+
+  while (true) {
+    prime = sum + inc;
+
+    if (isPrime(prime)) {
+      break;
+    }
+
+    inc++;
+  }
+
+  return prime - sum;
+}
+
+p(nearestPrimeSum([1, 2, 3]) === 1); // Nearest prime to 6 is 7
+p(nearestPrimeSum([5, 2]) === 4); // Nearest prime to 7 is 11
+p(nearestPrimeSum([1, 1, 1]) === 2); // Nearest prime to 3 is 5
+p(nearestPrimeSum([2, 12, 8, 4, 6]) === 5); // Nearest prime to 32 is 37
+//
+// // Nearest prime to 163 is 167
+p(nearestPrimeSum([50, 39, 49, 6, 17, 2]) === 4);

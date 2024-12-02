@@ -1,49 +1,44 @@
 /*
+ * returns -
+ * 1. distinct case-insensitive chars that appear more than once
+ * 2. unique digits that appear more than once
  *
- * Create a function that takes a string argument that
- * consists entirely of numeric digits and computes the
- * greatest product of four consecutive digits in the string.
- * The argument will always have more than 4 digits.
+ * if it's included more than once, than include
  *
- * 1. grabbing 4 values at a time
- *  length = 4
- *  idx + 4 >, 1 + 4 = 5
- *  0 + 4, 0, 1, 2, 3
- *  1 + 4, 1, 2, 3, 4
- *  idx -> slice(idx, 4)
+ * 1. check for more than one
+ * .. do a count, then count OR track the values
+ *  if it exists already, increment the total count
  *
- *  A ->
  *
- *  START
- *    store largest
- *    convert to integers and split
+ * tracker = []
+ * loop
+ *    char
+ *    if char is in tracker
+ *      counter++
  *
- *    loop, val, idx
- *       group = slice(idx, idx + 4)
- *       group reduce product
- *       compare largest
  */
-
 const p = console.log;
 
-function greatestProduct(str) {
-  let largest = -Infinity;
-  const nums = str.split("").map((char) => Number(char));
+function distinctMultiples(str) {
+  str = str.toLowerCase();
+  const tracker = {};
 
-  nums.forEach((_, idx) => {
-    if (idx + 4 > nums.length) return;
+  for (let i = 0; i < str.length; i++) {
+    const char = str[i];
+    tracker[char] = (tracker[char] || 0) + 1;
+  }
 
-    const product = nums.slice(idx, idx + 4).reduce((a, b) => a * b, 1);
-
-    if (product > largest) {
-      largest = product;
-    }
-  });
-
-  return largest;
+  return Object.values(tracker).reduce((a, b) => {
+    b = b > 1 ? 1 : 0;
+    return a + b;
+  }, 0);
 }
 
-p(greatestProduct("23456") === 360); // 3 * 4 * 5 * 6
-p(greatestProduct("3145926") === 540); // 5 * 9 * 2 * 6
-p(greatestProduct("1828172") === 128); // 1 * 8 * 2 * 8
-p(greatestProduct("123987654") === 3024); // 9 * 8 * 7 * 6
+p(distinctMultiples("xyz") === 0); // (none)
+p(distinctMultiples("xxyypzzr") === 3); // x, y, z
+p(distinctMultiples("xXyYpzZr") === 3); // x, y, z
+p(distinctMultiples("unununium") === 2); // u, n
+p(distinctMultiples("multiplicity") === 3); // l, t, i
+p(distinctMultiples("7657") === 1); // 7
+p(distinctMultiples("3141592653589793") === 4); // 3, 1, 5, 9
+p(distinctMultiples("2718281828459045") === 5); // 2, 1, 8, 4, 5

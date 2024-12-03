@@ -1,5 +1,13 @@
 /*
  *
+ * slice from length - argument
+ * rotate that value
+ *
+ * slice up to the argum
+ *
+ * glue those together
+ *
+ * slice(0, argument) slice(-argument)
  */
 const p = console.log;
 
@@ -8,22 +16,20 @@ function rotateArray(arr) {
   if (!arr.length) return [];
   const cp = arr.slice();
   const rotated = [...cp.slice(1), cp[0]];
-  p(rotated);
   return rotated;
 }
 
-rotateArray([7, 3, 5, 2, 9, 1]); // [3, 5, 2, 9, 1, 7]
-rotateArray(["a", "b", "c"]); // ["b", "c", "a"]
-rotateArray(["a"]); // ["a"]
-rotateArray([1, "a", 3, "c"]); // ["a", 3, "c", 1]
-rotateArray([{ a: 2 }, [1, 2], 3]); // [[1, 2], 3, { a: 2 }]
-rotateArray([]); // []
+function rotateRightmostDigits(num, count) {
+  const nums = String(num).split("");
+  const left = nums.slice(0, -count);
+  const right = rotateArray(nums.slice(-count));
+  const joined = Number([...left, ...right].join(""));
+  return joined;
+}
 
-// return `undefined` if the argument is not an array
-p(rotateArray()); // undefined
-p(rotateArray(1)); // undefined
-
-// the input array is not mutated
-let array = [1, 2, 3, 4];
-rotateArray(array); // [2, 3, 4, 1]
-p(array); // [1, 2, 3, 4]
+rotateRightmostDigits(735291, 1); // 735291
+rotateRightmostDigits(735291, 2); // 735219
+rotateRightmostDigits(735291, 3); // 735912
+rotateRightmostDigits(735291, 4); // 732915
+rotateRightmostDigits(735291, 5); // 752913
+rotateRightmostDigits(735291, 6); // 352917

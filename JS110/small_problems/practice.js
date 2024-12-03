@@ -1,13 +1,21 @@
 /*
  *
- * slice from length - argument
- * rotate that value
+ * rotate by 1, rotate Array
  *
- * slice up to the argum
+ * rotate 1
+ * rotate 2
+ * rotate 3 on.. (slice from 3)
  *
- * glue those together
+ * from 0, I rotate by 1
+ * from 1, I rotate by 1
  *
- * slice(0, argument) slice(-argument)
+ * rotation
+ * left = (i(0), i + 1), (0, 1 + 1 (2))
+ * left + rotated
+ *
+ * rotated => slice(i + 1), 1, 2, 3, 4
+ * [0, 1, 2, 3, 4]
+ *
  */
 const p = console.log;
 
@@ -27,9 +35,24 @@ function rotateRightmostDigits(num, count) {
   return joined;
 }
 
-rotateRightmostDigits(735291, 1); // 735291
-rotateRightmostDigits(735291, 2); // 735219
-rotateRightmostDigits(735291, 3); // 735912
-rotateRightmostDigits(735291, 4); // 732915
-rotateRightmostDigits(735291, 5); // 752913
-rotateRightmostDigits(735291, 6); // 352917
+function maxRotation(num) {
+  const numStr = String(num).split("");
+  // let rotation = Number(rotateArray(numStr).join(""));
+  let rotated = [];
+  let current = num;
+  //
+  // if (numStr.length < 3) return rotation;
+
+  for (let i = 0; i < numStr.length - 1; i++) {
+    rotated = rotateRightmostDigits(current, numStr.length - i);
+    current = rotated;
+  }
+
+  return current;
+}
+
+maxRotation(735291); // 321579
+maxRotation(3); // 3
+maxRotation(35); // 53
+maxRotation(105); // 15 -- the leading zero gets dropped
+p(maxRotation(8703529146) === 7321609845);
